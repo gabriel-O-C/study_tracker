@@ -1,4 +1,4 @@
-![code coverage badge](https://github.com/gabriel-O-C/study_tracker/workflows/pipeline/badge.svg)
+[![Pipeline](https://github.com/gabriel-O-C/study_tracker/actions/workflows/pipeline.yml/badge.svg)](https://github.com/gabriel-O-C/study_tracker/actions/workflows/pipeline.yml)
 
 # Study tracker BE
 
