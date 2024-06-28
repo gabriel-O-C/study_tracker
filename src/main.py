@@ -7,6 +7,6 @@ app = FastAPI()
 app.include_router(subjects_router)
 
 
-@app.get("/")
+@app.get('/')
 def hello():
-    return {"hello": "world!"}
+    return {'hello': 'world!'}
