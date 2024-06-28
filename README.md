@@ -1,4 +1,4 @@
-![code coverage badge](https://github.com/gabriel-O-C/study_tracker/workflows/ci/badge.svg)
+![code coverage badge](https://github.com/gabriel-O-C/study_tracker/workflows/pipeline/badge.svg)
 
 # Study tracker BE
 
