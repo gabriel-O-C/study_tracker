@@ -75,3 +75,11 @@ def test_delete_subject(client, subject):
     response = client.delete('/api/v1/subjects/1')
 
     assert response.status_code == HTTPStatus.NO_CONTENT
+
+
+def test_delete_not_found_subject(client, subject):
+
+    response = client.delete('/api/v1/subjects/999')
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json()['detail'] == 'Subject not found'
