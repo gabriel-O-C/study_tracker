@@ -69,3 +69,9 @@ def test_update_not_found_subject(client, subject):
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json()['detail'] == 'Subject not found'
+
+
+def test_delete_subject(client, subject):
+    response = client.delete('/api/v1/subjects/1')
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
