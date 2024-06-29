@@ -30,6 +30,13 @@ def test_create_subject_without_required_fields(client):
     assert response.json()['detail'][0]['msg'] == 'Field required'
 
 
+def test_create_subject_that_already_exists(client, subject):
+    response = client.post('/api/v1/subjects/', json={'name': 'Teste'})
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json()['detail'] == 'Subject already exists'
+
+
 def test_list_subjects(session, client):
     expected_subjects = 3
     session.bulk_save_objects(SubjectFactory.create_batch(3))
@@ -38,3 +45,27 @@ def test_list_subjects(session, client):
 
     assert response.status_code == HTTPStatus.OK
     assert len(response.json()['subjects']) == expected_subjects
+
+
+def test_update_subject(client, subject):
+    response = client.put(
+        '/api/v1/subjects/1',
+        json={
+            'name': 'Física',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'id': 1, 'name': 'Física'}
+
+
+def test_update_not_found_subject(client, subject):
+    response = client.put(
+        '/api/v1/subjects/999',
+        json={
+            'name': 'Física',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()['detail'] == 'Subject not found'

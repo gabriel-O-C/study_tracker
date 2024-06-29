@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -6,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 
 from src.database import get_session
 from src.main import app
-from src.subjects.models import table_registry
+from src.subjects.models import Subject, table_registry
 
 
 @pytest.fixture()
@@ -34,3 +36,13 @@ def session():
         yield session
 
     table_registry.metadata.drop_all(engine)
+
+
+@pytest.fixture()
+def subject(session):
+    subject = Subject(name='Teste', updated_at=datetime.now())
+    session.add(subject)
+    session.commit()
+    session.refresh(subject)
+
+    return subject
