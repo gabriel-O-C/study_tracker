@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+from factories import SubjectFactory
+
 
 def test_create_subject_success(client):
     response = client.post('/api/v1/subjects/', json={'name': 'História'})
@@ -26,3 +28,13 @@ def test_create_subject_without_required_fields(client):
 
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
     assert response.json()['detail'][0]['msg'] == 'Field required'
+
+
+def test_list_subjects(session, client):
+    expected_subjects = 3
+    session.bulk_save_objects(SubjectFactory.create_batch(3))
+
+    response = client.get('/api/v1/subjects/')
+
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json()['subjects']) == expected_subjects
