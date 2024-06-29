@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SubjectSchema(BaseModel):
@@ -8,6 +8,7 @@ class SubjectSchema(BaseModel):
 class PublicSubjectSchema(BaseModel):
     id: int
     name: str
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SubjectList(BaseModel):
