@@ -73,3 +73,18 @@ def update_subject(
     session.refresh(db_subject)
 
     return db_subject
+
+
+@router.delete('/{subject_id}', status_code=HTTPStatus.NO_CONTENT)
+def delete_subject(subject_id: int, session: Session):  # type: ignore
+    db_subject = session.scalar(
+        select(Subject).where(Subject.id == subject_id)
+    )
+
+    if not db_subject:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail='Subject not found'
+        )
+
+    session.delete(db_subject)
+    session.commit()
