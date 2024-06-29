@@ -8,3 +8,7 @@ class SubjectSchema(BaseModel):
 class PublicSubjectSchema(BaseModel):
     id: int
     name: str
+
+
+class SubjectList(BaseModel):
+    subjects: list[PublicSubjectSchema]
