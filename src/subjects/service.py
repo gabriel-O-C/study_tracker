@@ -10,16 +10,45 @@ from .models import Subject
 from .schemas import SubjectSchema
 
 
-def create_subject(session: T_Session, subject: SubjectSchema):
-    db_subject = session.scalar(
-        select(Subject).where(Subject.name == subject.name)
-    )
-
-    if db_subject:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail='Subject already exists'
+class SubjectService:
+    def post(session: T_Session, subject: SubjectSchema):
+        db_subject = session.scalar(
+            select(Subject).where(Subject.name == subject.name)
         )
 
-    db_subject = Subject(subject.name, updated_at=datetime.now())
+        if db_subject:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='Subject already exists',
+            )
 
-    return db_subject
+        db_subject = Subject(subject.name, updated_at=datetime.now())
+
+        return db_subject
+
+    def put(session: T_Session, subject: SubjectSchema, subject_id: int):
+        db_subject: Subject = session.scalar(
+            select(Subject).where(Subject.id == subject_id)
+        )
+
+        if not db_subject:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND, detail='Subject not found'
+            )
+
+        db_subject.name = subject.name
+        db_subject.updated_at = datetime.now()
+
+        return db_subject
+
+    def delete(session: T_Session, subject_id: int):
+        db_subject = session.scalar(
+            select(Subject).where(Subject.id == subject_id)
+        )
+
+        if not db_subject:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST, detail='Subject not found'
+            )
+
+        return db_subject

@@ -1,14 +1,13 @@
-from datetime import datetime
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from sqlalchemy import select
 
 from src.database import T_Session
 
 from .models import Subject
 from .schemas import PublicSubjectSchema, SubjectList, SubjectSchema
-from .service import create_subject as service_create_subject
+from .service import SubjectService
 
 router = APIRouter(prefix='/api/v1/subjects', tags=['subjects'])
 
@@ -20,7 +19,7 @@ def create_subject(
     subject: SubjectSchema,
     session: T_Session,
 ):
-    db_subject = service_create_subject(session, subject)
+    db_subject = SubjectService.post(session, subject)
     session.add(db_subject)
     session.commit()
     session.refresh(db_subject)
@@ -45,18 +44,7 @@ def update_subject(
     subject: SubjectSchema,
     session: T_Session,
 ):
-    db_subject: Subject = session.scalar(
-        select(Subject).where(Subject.id == subject_id)
-    )
-
-    if not db_subject:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Subject not found'
-        )
-
-    db_subject.name = subject.name
-    db_subject.updated_at = datetime.now()
-
+    db_subject = SubjectService.put(session, subject, subject_id)
     session.commit()
     session.refresh(db_subject)
 
@@ -65,14 +53,7 @@ def update_subject(
 
 @router.delete('/{subject_id}', status_code=HTTPStatus.NO_CONTENT)
 def delete_subject(subject_id: int, session: T_Session):  # type: ignore
-    db_subject = session.scalar(
-        select(Subject).where(Subject.id == subject_id)
-    )
-
-    if not db_subject:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail='Subject not found'
-        )
+    db_subject = SubjectService.delete(session, subject_id)
 
     session.delete(db_subject)
     session.commit()
