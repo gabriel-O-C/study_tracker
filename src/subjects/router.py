@@ -1,17 +1,15 @@
 from datetime import datetime
 from http import HTTPStatus
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from src.database import get_session
+from src.database import T_Session
 
 from .models import Subject
 from .schemas import PublicSubjectSchema, SubjectList, SubjectSchema
+from .service import create_subject as service_create_subject
 
-Session = Annotated[Session, Depends(get_session)]
 router = APIRouter(prefix='/api/v1/subjects', tags=['subjects'])
 
 
@@ -20,19 +18,9 @@ router = APIRouter(prefix='/api/v1/subjects', tags=['subjects'])
 )
 def create_subject(
     subject: SubjectSchema,
-    session: Session,  # type: ignore
+    session: T_Session,
 ):
-    db_subject = session.scalar(
-        select(Subject).where(Subject.name == subject.name)
-    )
-
-    if db_subject:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail='Subject already exists'
-        )
-
-    db_subject = Subject(subject.name, updated_at=datetime.now())
-
+    db_subject = service_create_subject(session, subject)
     session.add(db_subject)
     session.commit()
     session.refresh(db_subject)
@@ -41,7 +29,7 @@ def create_subject(
 
 
 @router.get('/', response_model=SubjectList, status_code=HTTPStatus.OK)
-def list_subjects(session: Session):  # type: ignore
+def list_subjects(session: T_Session):
     subjects = session.scalars(select(Subject)).all()
 
     return {'subjects': subjects}
@@ -55,7 +43,7 @@ def list_subjects(session: Session):  # type: ignore
 def update_subject(
     subject_id: int,
     subject: SubjectSchema,
-    session: Session,  # type: ignore
+    session: T_Session,
 ):
     db_subject: Subject = session.scalar(
         select(Subject).where(Subject.id == subject_id)
@@ -76,7 +64,7 @@ def update_subject(
 
 
 @router.delete('/{subject_id}', status_code=HTTPStatus.NO_CONTENT)
-def delete_subject(subject_id: int, session: Session):  # type: ignore
+def delete_subject(subject_id: int, session: T_Session):  # type: ignore
     db_subject = session.scalar(
         select(Subject).where(Subject.id == subject_id)
     )
